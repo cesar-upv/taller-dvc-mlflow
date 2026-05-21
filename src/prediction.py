@@ -148,10 +148,10 @@ if __name__ == "__main__":
 
                 # Generate and log an individual chart for the company
                 fig_company = plot_risk_probabilities(
-                    company_summary, risk_labels, f"risk summary - {company.lower()}"
+                    company_summary, risk_labels, f"Risk summary - {company.lower()}"
                 )
                 mlflow.log_figure(
                     fig_company, f"charts/risk_summary_{company.lower()}.png"
                 )
 
-        print("evaluation completed. global and nested runs saved to mlflow.")
+        print("Evaluation completed. Global and nested runs saved to mlflow.")
