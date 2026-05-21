@@ -69,6 +69,12 @@ if __name__ == "__main__":
         df["bert_embeddings"] = df["bert_embeddings"].apply(parse_embedding_string)
         X_test = np.vstack(df["bert_embeddings"].values)
 
+        # Log the global dataset as an input artifact
+        dataset_global = mlflow.data.from_pandas(
+            df, source="data/embeddings.csv", name="full_embeddings"
+        )
+        mlflow.log_input(dataset_global, context="batch_inference")
+
         # MODEL 1: Risk detection
         model1_path = "models/risk-detector.keras"
         model1 = tf.keras.models.load_model(model1_path)
@@ -145,6 +151,13 @@ if __name__ == "__main__":
             # nested=True connects this run to the parent_run
             with mlflow.start_run(run_name=run_name_child, nested=True):
                 company_data = df_risk[df_risk["company"] == company]
+
+                # Log the company dataset as an input artifact
+                dataset_company = mlflow.data.from_pandas(
+                    company_data, name=f"dataset_{company.lower()}"
+                )
+                mlflow.log_input(dataset_company, context="company_inference")
+
                 company_summary = company_data[risk_labels].mean()
 
                 mlflow.log_param("company_ticker", company)

@@ -25,4 +25,4 @@ stages:
       - models/risk-classifier.keras
       - models/risk-detector.keras
     outs:
-      - results.csv
+      - data/results.csv

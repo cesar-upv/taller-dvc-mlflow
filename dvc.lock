@@ -62,10 +62,10 @@ stages:
       size: 728044
     - path: src/prediction.py
       hash: md5
-      md5: bc98b8bd69e455b659b8d086d902eb32
-      size: 5744
+      md5: 0e44176318b1f97504f5f042208f9c76
+      size: 6311
     outs:
-    - path: results.csv
+    - path: data/results.csv
       hash: md5
       md5: 572ea9853b0037fc61bf66d9efa0efe0
       size: 160804
