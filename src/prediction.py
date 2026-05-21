@@ -21,11 +21,11 @@ def parse_embedding_string(embedding_str):
 
 
 def plot_risk_probabilities(
-    predicted_probs, risk_labels, title="Predicted Risk Probabilities"
+    predicted_probs, risk_labels, title="Predicted risk probabilities"
 ):
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.barh(risk_labels, predicted_probs, color="#3498db")
-    ax.set_xlabel("Predicted Probability")
+    ax.set_xlabel("Predicted probability")
     ax.set_title(title)
     plt.tight_layout()
     return fig
@@ -42,7 +42,20 @@ if __name__ == "__main__":
 
     print("Starting batch evaluation...")
 
-    with mlflow.start_run(run_name="batch_evaluation"):
+    # Obtain the current Git commit hash
+    try:
+        git_commit = (
+            subprocess.check_output(["git", "rev-parse", "HEAD"])
+            .decode("ascii")
+            .strip()
+        )
+    except Exception:
+        git_commit = "UNKNOWN"
+
+    # 1. Start Parent Run (Global Portfolio)
+    with mlflow.start_run(run_name="batch_evaluation") as parent_run:
+        mlflow.set_tag("commit_hash_dvc", git_commit)
+
         # Load data
         df = pd.read_csv("data/embeddings.csv")
         df["bert_embeddings"] = df["bert_embeddings"].apply(parse_embedding_string)
@@ -54,7 +67,7 @@ if __name__ == "__main__":
 
         y_pred_probs = model1.predict(X_test)
         idx = np.where(y_pred_probs > 0.5)[0]
-        print(f"Oraciones de riesgo detectadas: {len(idx)} de {len(df)}")
+        print(f"Risk sentences detected: {len(idx)} out of {len(df)}")
 
         # MODEL 2: Risk classification
         risk_labels = [
@@ -91,36 +104,54 @@ if __name__ == "__main__":
         output_csv = "results.csv"
         df_risk.to_csv(output_csv, index=False)
 
+        # Global metrics calculation
         global_summary = np.mean(predicted_probs, axis=0)
 
-        # Obtain the current Git commit hash
-        try:
-            git_commit = (
-                subprocess.check_output(["git", "rev-parse", "HEAD"])
-                .decode("ascii")
-                .strip()
-            )
-        except Exception:
-            git_commit = "Desconocido"
-
-        mlflow.set_tag("commit_hash_dvc", git_commit)
-
-        # Logging to MLflow
+        # Logging global parameters to Parent Run
         mlflow.log_param("total_analyzed_sentences", len(df))
         mlflow.log_param("total_risk_sentences", len(idx))
+        mlflow.log_param("total_companies_analyzed", len(df_risk["company"].unique()))
         mlflow.log_param("filter_model", model1_path)
         mlflow.log_param("classifier_model", model2_path)
 
+        # Logging global metrics
         for label, prob in zip(risk_labels, global_summary):
             metric_name = label.replace(" ", "_").lower()
-            mlflow.log_metric(f"mean_{metric_name}", prob)
+            mlflow.log_metric(f"global_mean_{metric_name}", prob)
 
-        # Artifacts
+        # Artifacts (global)
         mlflow.log_artifact(output_csv, artifact_path="generated_reports")
-
         fig = plot_risk_probabilities(
-            global_summary, risk_labels, "Global Risk Summary"
+            global_summary, risk_labels, "Global risk summary"
         )
         mlflow.log_figure(fig, "charts/global_risk_summary.png")
 
-        print("Evaluation completed. Results saved to MLflow.")
+        print("Processing nested runs per company...")
+
+        # 2. Start Child Runs (Per Company)
+        companies = df_risk["company"].unique()
+
+        for company in companies:
+            run_name_child = f"evaluation_{company.lower()}"
+
+            # nested=True connects this run to the parent_run
+            with mlflow.start_run(run_name=run_name_child, nested=True):
+                company_data = df_risk[df_risk["company"] == company]
+                company_summary = company_data[risk_labels].mean()
+
+                mlflow.log_param("company_ticker", company)
+                mlflow.log_param("company_risk_sentences", len(company_data))
+
+                for label, prob in zip(risk_labels, company_summary):
+                    metric_name = label.replace(" ", "_").lower()
+                    mlflow.log_metric(f"mean_{metric_name}", prob)
+
+                # Generate and log an individual chart for the company
+                fig_company = plot_risk_probabilities(
+                    company_summary, risk_labels, f"risk summary - {company.lower()}"
+                )
+                mlflow.log_figure(
+                    fig_company, f"charts/risk_summary_{company.lower()}.png"
+                )
+
+        print("evaluation completed. global and nested runs saved to mlflow.")
