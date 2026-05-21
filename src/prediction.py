@@ -1,3 +1,4 @@
+import ast
 import os
 import subprocess
 
@@ -16,8 +17,13 @@ mpl.rcParams["ps.fonttype"] = 42
 def parse_embedding_string(embedding_str):
     if isinstance(embedding_str, list):
         return embedding_str
-    embedding_list_str = embedding_str.strip("[]").split()
-    return [float(x) for x in embedding_list_str]
+
+    # Convert to safe list
+    try:
+        return ast.literal_eval(embedding_str)
+    except (ValueError, SyntaxError):
+        # Fallback
+        return []
 
 
 def plot_risk_probabilities(

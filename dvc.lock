@@ -23,3 +23,25 @@ stages:
       md5: 4220c07400cb66cc7182368e6588dc9b.dir
       size: 344120
       nfiles: 4
+  generate_embeddings:
+    cmd: python src/representation.py
+    deps:
+    - path: data/risk-txt/
+      hash: md5
+      md5: 4220c07400cb66cc7182368e6588dc9b.dir
+      size: 344120
+      nfiles: 4
+    - path: models/financial-bert-mlm/
+      hash: md5
+      md5: beb0c392426ddb017e0f54df2927d422.dir
+      size: 440101932
+      nfiles: 7
+    - path: src/representation.py
+      hash: md5
+      md5: 8670810984201b0ceb5f19c823c69a4e
+      size: 3371
+    outs:
+    - path: data/embeddings.csv
+      hash: md5
+      md5: 72a158fe3c55b1f08a9e0ca201a38df8
+      size: 18948257
