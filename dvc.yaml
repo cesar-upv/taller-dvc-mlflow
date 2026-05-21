@@ -1,0 +1,28 @@
+stages:
+  text_extraction:
+    cmd: python src/extraction.py
+    deps:
+      - src/extraction.py
+      - data/pdf/
+    outs:
+      - data/full-txt/
+      - data/risk-txt/
+
+  generate_embeddings:
+    cmd: python src/representation.py
+    deps:
+      - src/representation.py
+      - data/risk-txt/
+      - models/financial-bert-mlm/
+    outs:
+      - data/embeddings.csv
+
+  model_evaluation:
+    cmd: python src/prediction.py
+    deps:
+      - src/prediction.py
+      - data/embeddings.csv
+      - models/risk-classifier.keras
+      - models/risk-detector.keras
+    outs:
+      - results.csv

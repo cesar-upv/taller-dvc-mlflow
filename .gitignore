@@ -1,1 +1,38 @@
+# ==========================================
+# DVC (Data Version Control)
+# ==========================================
+# DVC-managed large files and directories
 /models
+
+# DVC intermediate pipeline outputs
+data/full-txt/
+data/risk-txt/
+
+# ==========================================
+# Python & Environments
+# ==========================================
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Python compilation and cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ==========================================
+# MLflow
+# ==========================================
+# MLflow tracking data and SQLite databases
+mlruns/
+mlruns.db
+*.db
+
+# ==========================================
+# IDEs & OS Files
+# ==========================================
+# Editor and OS generated files
+.vscode/
+.idea/
+.DS_Store
