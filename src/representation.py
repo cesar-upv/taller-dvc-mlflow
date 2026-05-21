@@ -33,9 +33,6 @@ def get_financial_bert_fine_tuned_embeddings(batch_sentences, tokenizerr, modell
 
     bert_embeddings = last_hidden_states.last_hidden_state[:, 0, :].cpu().numpy()
 
-    if len(batch_sentences) == 1:
-        return bert_embeddings[0]
-
     return bert_embeddings
 
 
@@ -77,7 +74,7 @@ if __name__ == "__main__":
         filename = os.path.basename(txt_path)
         company_ticker = filename.split("_")[0]
 
-        print(f"Procesando embeddings para: {company_ticker}")
+        print(f"Processing embeddings for: {company_ticker}")
 
         with open(txt_path, "r", encoding="utf-8") as file:
             text = file.read().strip()

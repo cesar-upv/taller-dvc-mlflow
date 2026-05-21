@@ -1,0 +1,25 @@
+schema: '2.0'
+stages:
+  text_extraction:
+    cmd: python src/extraction.py
+    deps:
+    - path: data/pdf/
+      hash: md5
+      md5: 62572ee13abb5e2cfdf086ee9e78688e.dir
+      size: 2517919
+      nfiles: 4
+    - path: src/extraction.py
+      hash: md5
+      md5: 5008385882cd8d3d1b00656f31bd8eb6
+      size: 3897
+    outs:
+    - path: data/full-txt/
+      hash: md5
+      md5: 4509de8cfc76f004c9c20c901082a86f.dir
+      size: 1239301
+      nfiles: 4
+    - path: data/risk-txt/
+      hash: md5
+      md5: 4220c07400cb66cc7182368e6588dc9b.dir
+      size: 344120
+      nfiles: 4
