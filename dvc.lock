@@ -45,3 +45,27 @@ stages:
       hash: md5
       md5: 72a158fe3c55b1f08a9e0ca201a38df8
       size: 18948257
+  model_evaluation:
+    cmd: python src/prediction.py
+    deps:
+    - path: data/embeddings.csv
+      hash: md5
+      md5: 72a158fe3c55b1f08a9e0ca201a38df8
+      size: 18948257
+    - path: models/risk-classifier.keras
+      hash: md5
+      md5: e7abbc341682ec238a8fb4edead48d47
+      size: 1659259
+    - path: models/risk-detector.keras
+      hash: md5
+      md5: c3285e75d46cc14e3ff703edf4cc5af3
+      size: 728044
+    - path: src/prediction.py
+      hash: md5
+      md5: bc98b8bd69e455b659b8d086d902eb32
+      size: 5744
+    outs:
+    - path: results.csv
+      hash: md5
+      md5: 572ea9853b0037fc61bf66d9efa0efe0
+      size: 160804

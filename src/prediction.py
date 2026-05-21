@@ -43,7 +43,9 @@ def plot_risk_probabilities(
 if __name__ == "__main__":
     # Strict MLflow configuration to save in the root directory
     ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    mlflow.set_tracking_uri(f"file://{os.path.join(ROOT_DIR, 'mlruns')}")
+    db_path = os.path.join(ROOT_DIR, "mlflow.db")
+
+    mlflow.set_tracking_uri(f"sqlite:///{db_path}")
     mlflow.set_experiment("risk-analyzer-pipeline")
 
     print("Starting batch evaluation...")
@@ -107,7 +109,7 @@ if __name__ == "__main__":
         for i, label in enumerate(risk_labels):
             df_risk[label] = predicted_probs[:, i]
 
-        output_csv = "results.csv"
+        output_csv = "data/results.csv"
         df_risk.to_csv(output_csv, index=False)
 
         # Global metrics calculation
@@ -154,7 +156,7 @@ if __name__ == "__main__":
 
                 # Generate and log an individual chart for the company
                 fig_company = plot_risk_probabilities(
-                    company_summary, risk_labels, f"Risk summary - {company.lower()}"
+                    company_summary, risk_labels, f"Risk summary - {company}"
                 )
                 mlflow.log_figure(
                     fig_company, f"charts/risk_summary_{company.lower()}.png"
