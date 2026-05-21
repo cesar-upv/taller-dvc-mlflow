@@ -1,0 +1,4 @@
+[core]
+    remote = mi_remoto
+['remote "mi_remoto"']
+    url = gdrive://1OAF4iNQ47JiOq-BxkF9BLAS6cFjxNUnW
