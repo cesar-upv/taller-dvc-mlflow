@@ -10,26 +10,26 @@ stages:
       nfiles: 4
     - path: src/extraction.py
       hash: md5
-      md5: 5008385882cd8d3d1b00656f31bd8eb6
-      size: 3897
+      md5: 38aae9ba66cd5e95a25600e341225156
+      size: 4009
     outs:
     - path: data/full-txt/
       hash: md5
-      md5: 4509de8cfc76f004c9c20c901082a86f.dir
-      size: 1239301
+      md5: 58dbd1ffae5bb63e8d72fe5fdf95a73d.dir
+      size: 1252853
       nfiles: 4
     - path: data/risk-txt/
       hash: md5
-      md5: 4220c07400cb66cc7182368e6588dc9b.dir
-      size: 344120
+      md5: 4aa44a2daa6fde8cf8aed6c0e87cedf0.dir
+      size: 346910
       nfiles: 4
   generate_embeddings:
     cmd: python src/representation.py
     deps:
     - path: data/risk-txt/
       hash: md5
-      md5: 4220c07400cb66cc7182368e6588dc9b.dir
-      size: 344120
+      md5: 4aa44a2daa6fde8cf8aed6c0e87cedf0.dir
+      size: 346910
       nfiles: 4
     - path: models/financial-bert-mlm/
       hash: md5
@@ -38,20 +38,20 @@ stages:
       nfiles: 7
     - path: src/representation.py
       hash: md5
-      md5: 8670810984201b0ceb5f19c823c69a4e
-      size: 3371
+      md5: 1ad305e1990c6f0e62f99373c90afacf
+      size: 3474
     outs:
     - path: data/embeddings.csv
       hash: md5
-      md5: 72a158fe3c55b1f08a9e0ca201a38df8
-      size: 18948257
+      md5: fe2eeec124fd9a0356dce8ede3c09eaf
+      size: 18949345
   model_evaluation:
     cmd: python src/prediction.py
     deps:
     - path: data/embeddings.csv
       hash: md5
-      md5: 72a158fe3c55b1f08a9e0ca201a38df8
-      size: 18948257
+      md5: fe2eeec124fd9a0356dce8ede3c09eaf
+      size: 18949345
     - path: models/risk-classifier.keras
       hash: md5
       md5: e7abbc341682ec238a8fb4edead48d47
@@ -62,10 +62,10 @@ stages:
       size: 728044
     - path: src/prediction.py
       hash: md5
-      md5: 0e44176318b1f97504f5f042208f9c76
-      size: 6311
+      md5: 4197b5df3a568263fafc140eb20abeaa
+      size: 6489
     outs:
     - path: data/results.csv
       hash: md5
-      md5: 572ea9853b0037fc61bf66d9efa0efe0
-      size: 160804
+      md5: 0929efa99b2a7d541f55336b20368103
+      size: 161207
