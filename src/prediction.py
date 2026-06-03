@@ -41,11 +41,10 @@ def plot_risk_probabilities(
 # DVC + MLflow Execution
 ###################################################################################################################
 if __name__ == "__main__":
-    # Strict MLflow configuration to save in the root directory
-    ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    db_path = os.path.join(ROOT_DIR, "mlflow.db")
+    # MLflow Tracking Server configuration
+    mlflow_tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:8080")
 
-    mlflow.set_tracking_uri(f"sqlite:///{db_path}")
+    mlflow.set_tracking_uri(mlflow_tracking_uri)
     mlflow.set_experiment("risk-analyzer-pipeline")
 
     print("Starting batch evaluation...")
