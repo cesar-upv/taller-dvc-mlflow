@@ -73,8 +73,9 @@ if __name__ == "__main__":
         # Extract company ticker from filename
         filename = os.path.basename(txt_path)
         company_ticker = filename.split("_")[0]
+        document_id = os.path.splitext(filename)[0]
 
-        print(f"Processing embeddings for: {company_ticker}")
+        print(f"Processing embeddings for: {document_id}")
 
         with open(txt_path, "r", encoding="utf-8") as file:
             text = file.read().strip()
@@ -92,6 +93,7 @@ if __name__ == "__main__":
             all_data.append(
                 {
                     "company": company_ticker,  # <--- Aquí usamos el Ticker limpio
+                    "document_id": document_id,
                     "sentence": sentence,
                     "bert_embeddings": embedding.tolist(),
                 }

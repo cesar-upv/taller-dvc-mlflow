@@ -37,6 +37,16 @@ def plot_risk_probabilities(
     return fig
 
 
+def slugify_mlflow_name(value):
+    return (
+        str(value)
+        .lower()
+        .replace(" ", "_")
+        .replace("/", "_")
+        .replace("\\", "_")
+    )
+
+
 ###################################################################################################################
 # DVC + MLflow Execution
 ###################################################################################################################
@@ -65,6 +75,8 @@ if __name__ == "__main__":
 
         # Load data
         df = pd.read_csv("data/embeddings.csv")
+        if "document_id" not in df.columns:
+            df["document_id"] = df["company"]
         df["bert_embeddings"] = df["bert_embeddings"].apply(parse_embedding_string)
         X_test = np.vstack(df["bert_embeddings"].values)
 
@@ -107,6 +119,7 @@ if __name__ == "__main__":
         df_risk = pd.DataFrame(
             {
                 "company": risk_sentences["company"],
+                "document_id": risk_sentences["document_id"],
                 "sentence": risk_sentences["sentence"],
             }
         )
@@ -123,7 +136,12 @@ if __name__ == "__main__":
         # Logging global parameters to Parent Run
         mlflow.log_param("total_analyzed_sentences", len(df))
         mlflow.log_param("total_risk_sentences", len(idx))
-        mlflow.log_param("total_companies_analyzed", len(df_risk["company"].unique()))
+        mlflow.log_param("total_companies_analyzed", len(df["company"].unique()))
+        mlflow.log_param("total_documents_analyzed", len(df["document_id"].unique()))
+        mlflow.log_param("total_companies_with_risk", len(df_risk["company"].unique()))
+        mlflow.log_param(
+            "total_documents_with_risk", len(df_risk["document_id"].unique())
+        )
         mlflow.log_param("filter_model", model1_path)
         mlflow.log_param("classifier_model", model2_path)
 
@@ -139,39 +157,43 @@ if __name__ == "__main__":
         )
         mlflow.log_figure(fig, "charts/global_risk_summary.png")
 
-        print("Processing nested runs per company...")
+        print("Processing nested runs per document...")
 
-        # 2. Start Child Runs (Per Company)
-        companies = df_risk["company"].unique()
+        # 2. Start Child Runs (Per Document)
+        documents = df_risk[["company", "document_id"]].drop_duplicates()
 
-        for company in companies:
-            run_name_child = f"evaluation_{company.lower()}"
+        for _, document in documents.iterrows():
+            company = document["company"]
+            document_id = document["document_id"]
+            document_slug = slugify_mlflow_name(document_id)
+            run_name_child = f"evaluation_{document_slug}"
 
             # nested=True connects this run to the parent_run
             with mlflow.start_run(run_name=run_name_child, nested=True):
-                company_data = df_risk[df_risk["company"] == company]
+                document_data = df_risk[df_risk["document_id"] == document_id]
 
-                # Log the company dataset as an input artifact
-                dataset_company = mlflow.data.from_pandas(
-                    company_data, name=f"dataset_{company.lower()}"
+                # Log the document dataset as an input artifact
+                dataset_document = mlflow.data.from_pandas(
+                    document_data, name=f"dataset_{document_slug}"
                 )
-                mlflow.log_input(dataset_company, context="company_inference")
+                mlflow.log_input(dataset_document, context="document_inference")
 
-                company_summary = company_data[risk_labels].mean()
+                document_summary = document_data[risk_labels].mean()
 
                 mlflow.log_param("company_ticker", company)
-                mlflow.log_param("company_risk_sentences", len(company_data))
+                mlflow.log_param("document_id", document_id)
+                mlflow.log_param("document_risk_sentences", len(document_data))
 
-                for label, prob in zip(risk_labels, company_summary):
+                for label, prob in zip(risk_labels, document_summary):
                     metric_name = label.replace(" ", "_").lower()
                     mlflow.log_metric(f"mean_{metric_name}", prob)
 
-                # Generate and log an individual chart for the company
-                fig_company = plot_risk_probabilities(
-                    company_summary, risk_labels, f"Risk summary - {company}"
+                # Generate and log an individual chart for the document
+                fig_document = plot_risk_probabilities(
+                    document_summary, risk_labels, f"Risk summary - {document_id}"
                 )
                 mlflow.log_figure(
-                    fig_company, f"charts/risk_summary_{company.lower()}.png"
+                    fig_document, f"charts/risk_summary_{document_slug}.png"
                 )
 
         print("Evaluation completed. Global and nested runs saved to mlflow.")
