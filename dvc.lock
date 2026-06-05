@@ -5,9 +5,9 @@ stages:
     deps:
     - path: data/pdf/
       hash: md5
-      md5: 62572ee13abb5e2cfdf086ee9e78688e.dir
-      size: 2517919
-      nfiles: 4
+      md5: d2246c1a7727d1ba6c3c05e6264f2f8a.dir
+      size: 1381001
+      nfiles: 3
     - path: src/extraction.py
       hash: md5
       md5: 5008385882cd8d3d1b00656f31bd8eb6
@@ -15,22 +15,22 @@ stages:
     outs:
     - path: data/full-txt/
       hash: md5
-      md5: 4509de8cfc76f004c9c20c901082a86f.dir
-      size: 1239301
-      nfiles: 4
+      md5: 9a043aa27d51a29cd7e22d2cef31e080.dir
+      size: 610849
+      nfiles: 3
     - path: data/risk-txt/
       hash: md5
-      md5: 4220c07400cb66cc7182368e6588dc9b.dir
-      size: 344120
-      nfiles: 4
+      md5: 9ed396fe4c729d82ec3c5e97bad510b2.dir
+      size: 206172
+      nfiles: 3
   generate_embeddings:
     cmd: python src/representation.py
     deps:
     - path: data/risk-txt/
       hash: md5
-      md5: 4220c07400cb66cc7182368e6588dc9b.dir
-      size: 344120
-      nfiles: 4
+      md5: 9ed396fe4c729d82ec3c5e97bad510b2.dir
+      size: 206172
+      nfiles: 3
     - path: models/financial-bert-mlm/
       hash: md5
       md5: beb0c392426ddb017e0f54df2927d422.dir
@@ -43,15 +43,15 @@ stages:
     outs:
     - path: data/embeddings.csv
       hash: md5
-      md5: 72a158fe3c55b1f08a9e0ca201a38df8
-      size: 18948257
+      md5: 8a47eb2cb80ad6f3c7f032d763a2394b
+      size: 9872087
   model_evaluation:
     cmd: python src/prediction.py
     deps:
     - path: data/embeddings.csv
       hash: md5
-      md5: 72a158fe3c55b1f08a9e0ca201a38df8
-      size: 18948257
+      md5: 8a47eb2cb80ad6f3c7f032d763a2394b
+      size: 9872087
     - path: models/risk-classifier.keras
       hash: md5
       md5: e7abbc341682ec238a8fb4edead48d47
@@ -62,10 +62,10 @@ stages:
       size: 728044
     - path: src/prediction.py
       hash: md5
-      md5: 0e44176318b1f97504f5f042208f9c76
-      size: 6311
+      md5: a0606ec68a4870a188654caa88e70502
+      size: 6243
     outs:
     - path: data/results.csv
       hash: md5
-      md5: 572ea9853b0037fc61bf66d9efa0efe0
-      size: 160804
+      md5: 936f4e584fff5675fced85a41d72da89
+      size: 89015
